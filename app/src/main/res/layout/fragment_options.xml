@@ -17,4 +17,31 @@
         android:text="@string/options_place_holder"
         android:layout_gravity="center"
         android:textSize="32dp"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/board_size"
+            android:gravity="center"/>
+        <Spinner
+            android:id="@+id/spinner_board_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:entries="@array/board_size_array"
+            android:padding="16dp">
+        </Spinner>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/go_back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/go_back"
+        android:layout_gravity="center"
+        android:padding="16dp" />
+
 </LinearLayout>

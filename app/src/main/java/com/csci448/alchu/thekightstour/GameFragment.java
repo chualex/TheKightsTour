@@ -22,7 +22,8 @@ public class GameFragment extends Fragment {
     private Button mProceedFromPostGameButton;
     private Button[][] mGameButtons;
     private LinearLayout mGameBoardLayout;
-
+    private int mBoardSize;
+    private static final String ARGUMENT_BOARD_SIZE = "com.gameactivity.boardsize";
 
 
 
@@ -35,8 +36,8 @@ public class GameFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mGameButtons = new Button[10][10];
-
+        mBoardSize = getArguments().getInt(ARGUMENT_BOARD_SIZE,0);
+        mGameButtons = new Button[mBoardSize][mBoardSize];
 
         if (savedInstanceState != null) {
 
@@ -88,10 +89,11 @@ public class GameFragment extends Fragment {
             }
         });
 
-        mGameBoardLayout.setWeightSum(10f);
+        float f = (float) mBoardSize;
+        mGameBoardLayout.setWeightSum(f);
         for (int i = 0; i < mGameButtons.length; i++) {
             LinearLayout layout = new LinearLayout(getContext());
-            layout.setWeightSum(10f);
+            layout.setWeightSum(f);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.weight = 1.0f;
@@ -110,10 +112,9 @@ public class GameFragment extends Fragment {
 
         return view;
     }
-    public static GameFragment newInstance() {
+    public static GameFragment newInstance(int boardSize) {
         Bundle args = new Bundle();
-        //args.putBoolean(ARGUMENT_ISHUMAN, isHuman);
-
+        args.putInt(ARGUMENT_BOARD_SIZE, boardSize);
 
         GameFragment frag = new GameFragment();
         frag.setArguments(args);

@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.ToggleButton;
 
@@ -21,11 +20,10 @@ import android.widget.ToggleButton;
 
 public class OptionsFragment extends Fragment {
     private Button mGoBackButton;
-    private ToggleButton mIsHumanButton;
-    private Spinner mDifficultySpinner;
+    private Spinner mBoardSizeSpinner;
+    private int mBoardSize;
 
-    private Button mResetScoresButton;
-    private static final String ARGUMENT_ISHUMAN = "com.optionsactivity.ishuman";
+    private static final String ARGUMENT_BOARDSIZE = "com.optionsactivity.boardsize";
     private static final String ARGUMENT_DIFFICULTY = "com.optionsactivity.difficulty";
     private static final String ARGUMENT_WINS = "com.optionsactivity.wins";
     private static final String ARGUMENT_LOSSES = "com.optionsactivity.losses";
@@ -40,7 +38,7 @@ public class OptionsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+        mBoardSize = getArguments().getInt(ARGUMENT_BOARDSIZE);
 
         if (savedInstanceState != null) {
 
@@ -59,9 +57,31 @@ public class OptionsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_options, container, false);
 
+// Sets up drop down menu for the difficulty
+        mBoardSizeSpinner = (Spinner) view.findViewById(R.id.spinner_board_size);
+        mBoardSizeSpinner.setSelection(mBoardSize - 4);
+        mBoardSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                mBoardSize = i + 4;
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
 
+            }
+        });
 
+        // sets up go back button
+        // if pressed brings up the welcome fragment
+        mGoBackButton = (Button) view.findViewById(R.id.go_back_button);
+        mGoBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setReturnResult();
+                getActivity().finish();
+            }
+        });
 
         return view;
     }
@@ -73,11 +93,9 @@ public class OptionsFragment extends Fragment {
      * @return new instance of the options fragment with the parameters passed as a bundle.
      *
      */
-    public static OptionsFragment newInstance() {
+    public static OptionsFragment newInstance(int boardSize) {
         Bundle args = new Bundle();
-        //args.putBoolean(ARGUMENT_ISHUMAN, isHuman);
-
-
+        args.putInt(ARGUMENT_BOARDSIZE, boardSize);
         OptionsFragment frag = new OptionsFragment();
         frag.setArguments(args);
         return frag;
@@ -85,8 +103,7 @@ public class OptionsFragment extends Fragment {
 
     public void setReturnResult() {
         Intent resultIntent = new Intent();
-        //resultIntent.putExtra(ARGUMENT_ISHUMAN, mIsHuman);
-
+        resultIntent.putExtra(ARGUMENT_BOARDSIZE, mBoardSize);
         getActivity().setResult(Activity.RESULT_OK, resultIntent);
     }
 
@@ -97,39 +114,19 @@ public class OptionsFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //outState.putBoolean(ARGUMENT_ISHUMAN, mIsHuman);
-
+        outState.putInt(ARGUMENT_BOARDSIZE, mBoardSize);
     }
 
-    /**
-     * Returns whether the user set a human or computer payer to the welcome fragment.
-     *
-     * @param result Intent being passed from
-     * @return Whether the user set a computer or human opponent
-     */
-    public static boolean returnIsHuman(Intent result) {
-        return result.getBooleanExtra(ARGUMENT_ISHUMAN, false);
-    }
 
 
 
     /**
-     * Returns the number of wins back to the Welcome Fragment
+     * Returns the board size back to the Welcome Fragment
      * @param result Intent being passed from
-     * @return The number of wins
+     * @return The board size selected
      */
-    public static int returnWins(Intent result) {
-        return  result.getIntExtra(ARGUMENT_WINS, 0);
+    public static int returnBoardSize(Intent result) {
+        return  result.getIntExtra(ARGUMENT_BOARDSIZE, 0);
     }
-
-    /**
-     * Returns the number of losses back to the Welcome Fragment
-     * @param result Intent being passed from
-     * @return The number of losses
-     */
-    public static int returnLosses(Intent result) {
-        return  result.getIntExtra(ARGUMENT_LOSSES, 0);
-    }
-
 
 }

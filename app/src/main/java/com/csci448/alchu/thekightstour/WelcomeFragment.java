@@ -22,7 +22,6 @@ public class WelcomeFragment extends Fragment {
     private Button mQuitButton;
     private Button mLeaderboardButton;
     private int mBoardSize;
-
     private static final int REQUEST_CODE_OPTIONS = 0;
     private static final int REQUEST_CODE_GAME = 1;
     private static final String ARGUMENT_ISHUMAN = "com.welcomeactivity.ishuman";
@@ -38,6 +37,7 @@ public class WelcomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mBoardSize = 5;
         if (savedInstanceState != null) {
 
         }
@@ -58,7 +58,7 @@ public class WelcomeFragment extends Fragment {
         mPlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = GameActivity.newIntent(getActivity());
+                Intent i = GameActivity.newIntent(getActivity(), mBoardSize);
                 startActivityForResult(i, REQUEST_CODE_GAME);
             }
         });
@@ -68,7 +68,7 @@ public class WelcomeFragment extends Fragment {
         mOptionsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = OptionsActivity.newIntent(getActivity());
+                Intent i = OptionsActivity.newIntent(getActivity(), mBoardSize);
                 startActivityForResult(i, REQUEST_CODE_OPTIONS);
             }
         });
@@ -118,6 +118,7 @@ public class WelcomeFragment extends Fragment {
             if (data == null) {
                 return;
             }
+            mBoardSize = OptionsFragment.returnBoardSize(data);
 
         }
 

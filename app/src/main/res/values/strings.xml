@@ -5,10 +5,14 @@
     <string name="options">Options</string>
     <string name="quit">Quit</string>
 
-    <string-array name="difficulty">
-        <item>Easy</item>
-        <item>Medium</item>
-        <item>Hard</item>
+    <string-array name="board_size_array">
+        <item>4X4</item>
+        <item>5X5</item>
+        <item>6X6</item>
+        <item>7X7</item>
+        <item>8X8</item>
+        <item>9X9</item>
+        <item>10X10</item>
     </string-array>
 
     <string name="options_place_holder">Options will go here</string>
@@ -21,4 +25,6 @@
     <string name="global">Global</string>
     <string name="global_place_holder">Global Leaderboard displayed here</string>
     <string name="local_place_holder">Local Leaderboard displayed here</string>
+    <string name="board_size">Board Size</string>
+    <string name="go_back">Go Back</string>
 </resources>

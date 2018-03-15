@@ -10,7 +10,7 @@ import android.support.v4.app.Fragment;
  */
 
 public class OptionsActivity extends SingleFragmentActivity {
-    private static final String EXTRA_ISHUMAN = "com.optionsactivity.ishuman";
+    private static final String EXTRA_BOARD_SIZE = "com.optionsactivity.boardsize";
     private static final String EXTRA_DIFFICULTY = "com.optionsactivity.difficulty";
     private static final String EXTRA_WINS = "com.optionsactivity.wins";
     private static final String EXTRA_LOSSES = "com.optionsactivity.losses";
@@ -30,10 +30,9 @@ public class OptionsActivity extends SingleFragmentActivity {
      */
     @Override
     protected Fragment createFragment() {
-        boolean isHuman = (boolean) getIntent().getBooleanExtra(EXTRA_ISHUMAN, false);
-        int wins = (int) getIntent().getIntExtra(EXTRA_WINS, 0);
-        int losses = (int) getIntent().getIntExtra(EXTRA_LOSSES,0);
-        return OptionsFragment.newInstance();
+        int boardSize = (int) getIntent().getIntExtra(EXTRA_BOARD_SIZE, 0);
+
+        return OptionsFragment.newInstance(boardSize);
     }
 
     /**
@@ -43,9 +42,9 @@ public class OptionsActivity extends SingleFragmentActivity {
 
      * @return the new intent with the extras
      */
-    public static Intent newIntent(Context packageContext) {
+    public static Intent newIntent(Context packageContext, int boardSize) {
         Intent intent = new Intent(packageContext, OptionsActivity.class);
-        //intent.putExtra(EXTRA_ISHUMAN, isHuman);
+        intent.putExtra(EXTRA_BOARD_SIZE, boardSize);
 
         return intent;
     }
