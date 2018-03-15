@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/time_display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/time"
+        />
+
+    <FrameLayout
+        android:id="@+id/game_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/board_here"
+            android:layout_gravity="center"
+            android:padding="32dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="bottom">
+            <Button
+                android:id="@+id/game_quit_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/quit"
+                />
+            <Button
+                android:id="@+id/proceed_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/proceed"
+                android:layout_marginLeft="64dp"
+                />
+        </LinearLayout>
+
+    </FrameLayout>
+    <LinearLayout
+        android:id="@+id/postgame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/win_loss_display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/win_loss_holder"
+            android:layout_gravity="center_horizontal"
+            android:padding="54dp"/>
+
+        <Button
+            android:id="@+id/proceed_from_postgame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/proceed"
+            android:layout_gravity="center_horizontal"/>
+
+    </LinearLayout>
+
+
+
+
+
+
+
+
+</FrameLayout>
