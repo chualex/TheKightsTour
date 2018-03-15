@@ -1,5 +1,6 @@
 package com.csci448.alchu.thekightstour;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -19,6 +20,9 @@ public class GameFragment extends Fragment {
     private FrameLayout mGameLayout;
     private LinearLayout mPostgameLayout;
     private Button mProceedFromPostGameButton;
+    private Button[][] mGameButtons;
+    private LinearLayout mGameBoardLayout;
+
 
 
 
@@ -31,7 +35,7 @@ public class GameFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        mGameButtons = new Button[10][10];
 
 
         if (savedInstanceState != null) {
@@ -56,6 +60,8 @@ public class GameFragment extends Fragment {
 
         mPostgameLayout = (LinearLayout) view.findViewById(R.id.postgame_layout);
         mPostgameLayout.setVisibility(View.INVISIBLE);
+
+        mGameBoardLayout = (LinearLayout) view.findViewById(R.id.game_board);
 
         mQuitButton = (Button) view.findViewById(R.id.game_quit_button);
         mQuitButton.setOnClickListener(new View.OnClickListener() {
@@ -82,6 +88,25 @@ public class GameFragment extends Fragment {
             }
         });
 
+        mGameBoardLayout.setWeightSum(10f);
+        for (int i = 0; i < mGameButtons.length; i++) {
+            LinearLayout layout = new LinearLayout(getContext());
+            layout.setWeightSum(10f);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.weight = 1.0f;
+
+            layout.setLayoutParams(params);
+
+            for (int j = 0; j < mGameButtons[i].length; j++) {
+
+                mGameButtons[i][j] = new Button(getContext());
+                mGameButtons[i][j].setLayoutParams(params);
+
+                layout.addView(mGameButtons[i][j]);
+            }
+            mGameBoardLayout.addView(layout);
+        }
 
         return view;
     }
