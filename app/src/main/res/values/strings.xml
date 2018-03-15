@@ -17,4 +17,8 @@
     <string name="board_here">Board Will Go Here</string>
     <string name="proceed">Proceed</string>
     <string name="win_loss_holder">Directed here after game will display Win/Loss</string>
+    <string name="local">Local</string>
+    <string name="global">Global</string>
+    <string name="global_place_holder">Global Leaderboard displayed here</string>
+    <string name="local_place_holder">Local Leaderboard displayed here</string>
 </resources>

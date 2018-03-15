@@ -20,11 +20,9 @@ public class WelcomeFragment extends Fragment {
     private Button mPlayButton;
     private Button mOptionsButton;
     private Button mQuitButton;
-    private boolean mIsHuman;
-    private int mWins;
-    private int mLosses;
+    private Button mLeaderboardButton;
     private int mBoardSize;
-    private TextView mScoreText;
+
     private static final int REQUEST_CODE_OPTIONS = 0;
     private static final int REQUEST_CODE_GAME = 1;
     private static final String ARGUMENT_ISHUMAN = "com.welcomeactivity.ishuman";
@@ -75,6 +73,14 @@ public class WelcomeFragment extends Fragment {
             }
         });
 
+        mLeaderboardButton = (Button) view.findViewById(R.id.leaderboard_button);
+        mLeaderboardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = LeaderboardActivity.newIntent(getActivity());
+                startActivity(i);
+            }
+        });
         mQuitButton = (Button) view.findViewById(R.id.quit_button);
         mQuitButton.setOnClickListener(new View.OnClickListener() {
             @Override
