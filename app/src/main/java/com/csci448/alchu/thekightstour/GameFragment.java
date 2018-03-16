@@ -20,6 +20,7 @@ public class GameFragment extends Fragment {
     private FrameLayout mGameLayout;
     private LinearLayout mPostgameLayout;
     private Button mProceedFromPostGameButton;
+    // array to hold game buttons
     private Button[][] mGameButtons;
     private LinearLayout mGameBoardLayout;
     private int mBoardSize;
@@ -89,24 +90,45 @@ public class GameFragment extends Fragment {
             }
         });
 
+        // casts board size to float for layout weight
         float f = (float) mBoardSize;
+
+        // sets layout weight based on board size
         mGameBoardLayout.setWeightSum(f);
+
+        // loop to create NXN size board of buttons
+        // the nested loop below iterates through the 2D array of buttons
+        // initializes and sets the layout for the rows of linear layouts and the columns of buttons
+
+        // TODO: set onclick listeners for each button
         for (int i = 0; i < mGameButtons.length; i++) {
+            //create linear layout for rows of buttons
             LinearLayout layout = new LinearLayout(getContext());
+            // set the layout weight for the row
             layout.setWeightSum(f);
+            // parameters for the layout and buttons
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+            // sets the weight of the button and row
             params.weight = 1.0f;
 
+            // sets the parameters for the row
             layout.setLayoutParams(params);
 
             for (int j = 0; j < mGameButtons[i].length; j++) {
 
+                // creates button
                 mGameButtons[i][j] = new Button(getContext());
+
+                // sets the parameters for the button
                 mGameButtons[i][j].setLayoutParams(params);
 
+                // adds button to the linear layout
                 layout.addView(mGameButtons[i][j]);
             }
+
+            // adds the linear layout to the game board layout
             mGameBoardLayout.addView(layout);
         }
 

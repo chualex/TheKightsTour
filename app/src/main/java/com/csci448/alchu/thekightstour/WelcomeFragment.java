@@ -24,10 +24,7 @@ public class WelcomeFragment extends Fragment {
     private int mBoardSize;
     private static final int REQUEST_CODE_OPTIONS = 0;
     private static final int REQUEST_CODE_GAME = 1;
-    private static final String ARGUMENT_ISHUMAN = "com.welcomeactivity.ishuman";
-    private static final String ARGUMENT_DIFFICULTY = "com.welcomeactivity.difficulty";
-    private static final String ARGUMENT_WINS = "com.welcomeactivity.wins";
-    private static final String ARGUMENT_LOSSES = "com.welcomeactivity.losses";
+
 
     /**
      * Called when the class is created. Sets up the variables

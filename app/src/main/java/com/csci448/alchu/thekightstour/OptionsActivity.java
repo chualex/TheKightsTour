@@ -11,9 +11,7 @@ import android.support.v4.app.Fragment;
 
 public class OptionsActivity extends SingleFragmentActivity {
     private static final String EXTRA_BOARD_SIZE = "com.optionsactivity.boardsize";
-    private static final String EXTRA_DIFFICULTY = "com.optionsactivity.difficulty";
-    private static final String EXTRA_WINS = "com.optionsactivity.wins";
-    private static final String EXTRA_LOSSES = "com.optionsactivity.losses";
+
 
     /**
      * gets the layout id for the options activity

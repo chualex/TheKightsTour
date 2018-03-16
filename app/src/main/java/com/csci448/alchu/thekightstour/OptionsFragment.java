@@ -24,9 +24,7 @@ public class OptionsFragment extends Fragment {
     private int mBoardSize;
 
     private static final String ARGUMENT_BOARDSIZE = "com.optionsactivity.boardsize";
-    private static final String ARGUMENT_DIFFICULTY = "com.optionsactivity.difficulty";
-    private static final String ARGUMENT_WINS = "com.optionsactivity.wins";
-    private static final String ARGUMENT_LOSSES = "com.optionsactivity.losses";
+
 
     /**
      * Called when the class is created. sets up the arguments passed from the Welcome Activity.
@@ -57,7 +55,7 @@ public class OptionsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_options, container, false);
 
-// Sets up drop down menu for the difficulty
+        // Sets up drop down menu for the board size
         mBoardSizeSpinner = (Spinner) view.findViewById(R.id.spinner_board_size);
         mBoardSizeSpinner.setSelection(mBoardSize - 4);
         mBoardSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
