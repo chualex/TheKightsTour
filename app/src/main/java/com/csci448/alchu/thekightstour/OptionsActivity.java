@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.support.annotation.LayoutRes;
 import android.support.v4.app.Fragment;
 
+import java.util.List;
+
 /**
  * Created by Alex on 3/1/18.
  */
@@ -45,5 +47,18 @@ public class OptionsActivity extends SingleFragmentActivity {
         intent.putExtra(EXTRA_BOARD_SIZE, boardSize);
 
         return intent;
+    }
+
+    @Override
+    public void onBackPressed() {
+        List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
+        if (fragmentList != null) {
+            for(Fragment fragment : fragmentList) {
+                if (fragment instanceof OnBackPressedListener) {
+                    ((OnBackPressedListener) fragment).onBackPressed();
+                }
+            }
+        }
+        super.onBackPressed();
     }
 }

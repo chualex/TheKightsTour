@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.ToggleButton;
 
 /**
  * Options Fragment Class
@@ -18,7 +17,7 @@ import android.widget.ToggleButton;
  * Handles all inputs from the options page. Sends options set by user back to the Welcome Fragment
  */
 
-public class OptionsFragment extends Fragment {
+public class OptionsFragment extends Fragment implements OnBackPressedListener {
     private Button mGoBackButton;
     private Spinner mBoardSizeSpinner;
     private int mBoardSize;
@@ -57,11 +56,11 @@ public class OptionsFragment extends Fragment {
 
         // Sets up drop down menu for the board size
         mBoardSizeSpinner = (Spinner) view.findViewById(R.id.spinner_board_size);
-        mBoardSizeSpinner.setSelection(mBoardSize - 4);
+        mBoardSizeSpinner.setSelection(mBoardSize - 5);
         mBoardSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                mBoardSize = i + 4;
+                mBoardSize = i + 5;
             }
 
             @Override
@@ -76,8 +75,7 @@ public class OptionsFragment extends Fragment {
         mGoBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setReturnResult();
-                getActivity().finish();
+                finish();
             }
         });
 
@@ -125,6 +123,15 @@ public class OptionsFragment extends Fragment {
      */
     public static int returnBoardSize(Intent result) {
         return  result.getIntExtra(ARGUMENT_BOARDSIZE, 0);
+    }
+
+    public void onBackPressed() {
+        finish();
+    }
+
+    private void finish() {
+        setReturnResult();
+        getActivity().finish();
     }
 
 }

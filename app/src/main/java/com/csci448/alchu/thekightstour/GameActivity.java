@@ -46,4 +46,10 @@ public class GameActivity extends SingleFragmentActivity {
         intent.putExtra(EXTRA_BOARD_SIZE, boardSize);
         return intent;
     }
+
+    @Override
+    public void onBackPressed() {
+        GameFragment.stopTimer();
+        super.onBackPressed();
+    }
 }

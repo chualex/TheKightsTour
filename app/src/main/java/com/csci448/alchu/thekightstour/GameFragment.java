@@ -1,14 +1,23 @@
 package com.csci448.alchu.thekightstour;
 
-import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by Alex on 3/15/18.
@@ -22,12 +31,20 @@ public class GameFragment extends Fragment {
     private Button mProceedFromPostGameButton;
     // array to hold game buttons
     private Button[][] mGameButtons;
+    // array to hold state of game board
+    private squareState[][] mGameBoard;
     private LinearLayout mGameBoardLayout;
     private int mBoardSize;
     private static final String ARGUMENT_BOARD_SIZE = "com.gameactivity.boardsize";
-
-
-
+    private Knight mKnight;
+    private List<Point> mVisitedSquares;
+    private boolean mGameOver;
+    private static Timer mTimer;
+    private long mTimeStart;
+    private long mTimeCurrent;
+    private TextView mTimeDisplay;
+    private TextView mResultText;
+    private TextView mWinLossDisplay;
     /**
      * Called when the class is created. sets up the arguments passed from the Welcome Activity.
      *
@@ -38,7 +55,11 @@ public class GameFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBoardSize = getArguments().getInt(ARGUMENT_BOARD_SIZE,0);
+        mKnight = new Knight();
+        mVisitedSquares = new ArrayList<>();
         mGameButtons = new Button[mBoardSize][mBoardSize];
+        mGameBoard = new squareState[mBoardSize][mBoardSize];
+        mGameOver = false;
 
         if (savedInstanceState != null) {
 
@@ -63,22 +84,33 @@ public class GameFragment extends Fragment {
         mPostgameLayout = (LinearLayout) view.findViewById(R.id.postgame_layout);
         mPostgameLayout.setVisibility(View.INVISIBLE);
 
+        mWinLossDisplay = (TextView) view.findViewById(R.id.win_loss_display);
+
         mGameBoardLayout = (LinearLayout) view.findViewById(R.id.game_board);
+
+        mTimeDisplay = (TextView) view.findViewById(R.id.time_display);
+
+        mResultText = (TextView) view.findViewById(R.id.result_display);
 
         mQuitButton = (Button) view.findViewById(R.id.game_quit_button);
         mQuitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 getActivity().finish();
+                stopTimer();
             }
         });
 
         mProceedFromGameButton = (Button) view.findViewById(R.id.proceed_button);
+        mProceedFromGameButton.setVisibility(View.INVISIBLE);
         mProceedFromGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mGameOver = true;
                 mGameLayout.setVisibility(View.INVISIBLE);
                 mPostgameLayout.setVisibility(View.VISIBLE);
+                mResultText.setVisibility(View.INVISIBLE);
+                stopTimer();
             }
         });
 
@@ -100,7 +132,6 @@ public class GameFragment extends Fragment {
         // the nested loop below iterates through the 2D array of buttons
         // initializes and sets the layout for the rows of linear layouts and the columns of buttons
 
-        // TODO: set onclick listeners for each button
         for (int i = 0; i < mGameButtons.length; i++) {
             //create linear layout for rows of buttons
             LinearLayout layout = new LinearLayout(getContext());
@@ -124,16 +155,142 @@ public class GameFragment extends Fragment {
                 // sets the parameters for the button
                 mGameButtons[i][j].setLayoutParams(params);
 
+                //Button click logic
+                final int finalI = i;
+                final int finalJ = j;
+                mGameButtons[i][j].setOnClickListener(new Button.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (mGameBoard[finalI][finalJ] == squareState.AVAILABLE) {
+                            //knights current location is added to visited squares
+                            mVisitedSquares.add(new Point(mKnight.getX(), mKnight.getY()));
+
+                            //move the knight there
+                            mKnight.setX(finalI);
+                            mKnight.setY(finalJ);
+
+                            //reset the board
+                            setBoard();
+
+                            updateUI();
+
+                            if (mGameOver) {
+                                for (int i = 0; i < mGameBoard.length; i++) {
+                                    for (int j = 0; j < mGameBoard[i].length; j++) {
+                                        mGameButtons[i][j].setBackgroundColor(Color.BLUE);
+                                    }
+                                }
+
+                                mResultText.setVisibility(View.VISIBLE);
+                                mProceedFromGameButton.setVisibility(View.VISIBLE);
+                                if (mVisitedSquares.size() == mBoardSize * mBoardSize - 1) {
+                                    Log.i(TAG, "Winner");
+                                    mResultText.setText("Winner!");
+                                    mWinLossDisplay.setText("Congrats You Won!");
+                                } else {
+                                    Log.i(TAG, "Loser");
+                                    mWinLossDisplay.setText("Sorry you lost!");
+                                }
+                            }
+                        }
+                    }
+                });
+
                 // adds button to the linear layout
                 layout.addView(mGameButtons[i][j]);
+
+                mGameBoard[i][j] = squareState.UNOCCUPIED;
             }
 
             // adds the linear layout to the game board layout
             mGameBoardLayout.addView(layout);
         }
 
+        setBoard();
+        updateUI();
+
+        mTimeStart = System.currentTimeMillis();
+        startTimer();
+
         return view;
     }
+
+    public static void stopTimer() {
+        mTimer.cancel();
+    }
+
+    private void updateUI() {
+        for (int i = 0; i < mGameBoard.length; i++) {
+            for (int j = 0; j < mGameBoard[i].length; j++) {
+                switch (mGameBoard[i][j]) {
+                    case VISITED:
+                        mGameButtons[i][j].setBackgroundColor(Color.GREEN);
+                        break;
+
+                    case OCCUPIED:
+                        mGameButtons[i][j].setBackgroundColor(Color.RED);
+                        break;
+
+                    case AVAILABLE:
+                        mGameButtons[i][j].setBackgroundColor(Color.YELLOW);
+                        break;
+
+                    case UNOCCUPIED:
+                        if ((i + j) % 2 == 0) {
+                            mGameButtons[i][j].setBackgroundColor(Color.LTGRAY);
+                        } else {
+                            mGameButtons[i][j].setBackgroundColor(Color.DKGRAY);
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    private void setBoard() {
+        //Set everything to unoccupied
+        clearBoard();
+
+        mGameBoard[mKnight.getX()][mKnight.getY()] = squareState.OCCUPIED;
+
+        for (Point p : mVisitedSquares) {
+            mGameBoard[p.getX()][p.getY()] = squareState.VISITED;
+        }
+
+        mGameOver = true;
+        for (Point p : mKnight.getAvaialbeSquares(mGameBoard)) {
+            mGameBoard[p.getX()][p.getY()] = squareState.AVAILABLE;
+            mGameOver = false;
+        }
+    }
+
+    private void clearBoard() {
+        for (int i = 0; i < mGameButtons.length; i++) {
+            for (int j = 0; j < mGameButtons[i].length; j++) {
+                mGameBoard[i][j] = squareState.UNOCCUPIED;
+            }
+        }
+    }
+
+    private void startTimer() {
+        //TODO make sure timer stops when anything changes (quit button..)
+        mTimer = new Timer();
+        mTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (mGameOver) {
+                    stopTimer();
+                }
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        mTimeCurrent = System.currentTimeMillis();
+                        mTimeDisplay.setText(Long.toString((mTimeCurrent - mTimeStart) / 1000));
+                    }
+                });
+            }
+        }, 1000, 1000);
+    }
+
     public static GameFragment newInstance(int boardSize) {
         Bundle args = new Bundle();
         args.putInt(ARGUMENT_BOARD_SIZE, boardSize);
@@ -142,4 +299,6 @@ public class GameFragment extends Fragment {
         frag.setArguments(args);
         return frag;
     }
+
 }
+
