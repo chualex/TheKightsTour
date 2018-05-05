@@ -1,5 +1,8 @@
 package com.csci448.alchu.thekightstour;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -40,11 +43,13 @@ public class GameFragment extends Fragment {
     private List<Point> mVisitedSquares;
     private boolean mGameOver;
     private static Timer mTimer;
-    private long mTimeStart;
-    private long mTimeCurrent;
+    private static long mTimeStart;
+    private static long mTimeCurrent;
+    private static long mFinalTime;
     private TextView mTimeDisplay;
     private TextView mResultText;
     private TextView mWinLossDisplay;
+    private SQLiteDatabase mDatabase;
     /**
      * Called when the class is created. sets up the arguments passed from the Welcome Activity.
      *
@@ -125,6 +130,9 @@ public class GameFragment extends Fragment {
         // casts board size to float for layout weight
         float f = (float) mBoardSize;
 
+        mDatabase = new GameBaseHelper(getContext().getApplicationContext())
+                .getWritableDatabase();
+
         // sets layout weight based on board size
         mGameBoardLayout.setWeightSum(f);
 
@@ -187,6 +195,16 @@ public class GameFragment extends Fragment {
                                     Log.i(TAG, "Winner");
                                     mResultText.setText("Winner!");
                                     mWinLossDisplay.setText("Congrats You Won!");
+                                    // ADDITIONS
+                                    // Somehow prompt for name - after cloud db is setup
+                                    // Put this all into a function and query existing db for quicker time
+                                    stopTimer();
+                                    ContentValues values = new ContentValues();
+                                    values.put(GameDbSchema.RecordTable.Cols.BOARDSIZE, mBoardSize);
+                                    values.put(GameDbSchema.RecordTable.Cols.NAME, "Bob Ross");
+                                    values.put(GameDbSchema.RecordTable.Cols.TIME, mFinalTime);
+                                    GameInfo gameInfo = new GameInfo(mBoardSize, "Bob Ross", mFinalTime);
+                                    updateGameInfo(gameInfo);
                                 } else {
                                     Log.i(TAG, "Loser");
                                     mWinLossDisplay.setText("Sorry you lost!");
@@ -217,6 +235,7 @@ public class GameFragment extends Fragment {
 
     public static void stopTimer() {
         mTimer.cancel();
+        mFinalTime = (mTimeCurrent - mTimeStart) / 1000;
     }
 
     private void updateUI() {
@@ -273,7 +292,6 @@ public class GameFragment extends Fragment {
     }
 
     private void startTimer() {
-        //TODO make sure timer stops when anything changes (quit button..)
         mTimer = new Timer();
         mTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -300,5 +318,22 @@ public class GameFragment extends Fragment {
         return frag;
     }
 
+    public void updateGameInfo(GameInfo gameInfo) {
+        int boardSize = gameInfo.getBoardSize();
+        ContentValues values = getContentValues(gameInfo);
+        mDatabase.update(GameDbSchema.RecordTable.NAME, values,
+                GameDbSchema.RecordTable.Cols.BOARDSIZE + " = ?",
+                new String[] { Integer.toString(boardSize) });
+    }
+
+    private ContentValues getContentValues(GameInfo gameInfo) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(GameDbSchema.RecordTable.Cols.BOARDSIZE, gameInfo.boardSize);
+        contentValues.put(GameDbSchema.RecordTable.Cols.NAME, gameInfo.name);
+        contentValues.put(GameDbSchema.RecordTable.Cols.TIME, gameInfo.time);
+        return contentValues;
+    }
+
+    //TODO Sound - Cloud DB/Prettify
 }
 

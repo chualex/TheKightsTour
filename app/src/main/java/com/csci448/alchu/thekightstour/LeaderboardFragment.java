@@ -1,12 +1,18 @@
 package com.csci448.alchu.thekightstour;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Alex on 3/15/18.
@@ -18,6 +24,8 @@ public class LeaderboardFragment extends Fragment {
     private Button mLocalButton;
     private TextView mGlobalTextView;
     private TextView mLocalTextView;
+    private SQLiteDatabase mDatabase;
+    private List<GameInfo> records;
 
     /**
      * Called when the class is created. sets up the arguments passed from the Welcome Activity.
@@ -71,6 +79,29 @@ public class LeaderboardFragment extends Fragment {
                 mLocalTextView.setVisibility(View.VISIBLE);
             }
         });
+
+        mDatabase = new GameBaseHelper(getContext().getApplicationContext())
+                .getWritableDatabase();
+
+        records = new ArrayList<>();
+
+        GameCursorWrapper wrapper = queryGameInfo(null, null);
+        try {
+            wrapper.moveToFirst();
+            while (!wrapper.isAfterLast()) {
+                records.add(wrapper.getGameInfo());
+                wrapper.moveToNext();
+            }
+        } finally {
+            wrapper.close();
+        }
+
+        for(GameInfo record : records) {
+            int myTextId = getResources().getIdentifier("localtime"+record.boardSize, "id", getActivity().getPackageName());
+            TextView textView = view.findViewById(myTextId);
+            textView.setText(Long.toString(record.time));
+        }
+
         return view;
     }
 
@@ -89,6 +120,19 @@ public class LeaderboardFragment extends Fragment {
         LeaderboardFragment frag = new LeaderboardFragment();
         frag.setArguments(args);
         return frag;
+    }
+
+    private GameCursorWrapper queryGameInfo(String whereClause, String[] whereArgs) {
+        Cursor cursor = mDatabase.query(
+                GameDbSchema.RecordTable.NAME,
+                null, // columns - null selects all columns
+                whereClause,
+                whereArgs,
+                null, // groupBy
+                null, // having
+                null  // orderBy
+        );
+        return new GameCursorWrapper(cursor);
     }
 
 }
