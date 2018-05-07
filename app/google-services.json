@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "799435963790",
+    "firebase_url": "https://the-knights-tour.firebaseio.com",
+    "project_id": "the-knights-tour",
+    "storage_bucket": "the-knights-tour.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:799435963790:android:3a85578de18c53d3",
+        "android_client_info": {
+          "package_name": "com.csci448.alchu.thekightstour"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "799435963790-o80l5h2uikt3qu2207m9g01oe4fjt9or.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDcvLGmIwWUZXZKj98xxRaZazyiets61M"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

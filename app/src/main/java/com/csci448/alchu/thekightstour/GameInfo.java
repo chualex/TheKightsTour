@@ -7,9 +7,9 @@ package com.csci448.alchu.thekightstour;
 public class GameInfo {
     int boardSize;
     String name;
-    long time;
+    double time;
 
-    GameInfo(int boardSize, String name, long time) {
+    GameInfo(int boardSize, String name, double time) {
         this.boardSize = boardSize;
         this.name = name;
         this.time = time;
@@ -31,11 +31,11 @@ public class GameInfo {
         this.name = name;
     }
 
-    public long getTime() {
+    public double getTime() {
         return time;
     }
 
-    public void setTime(long time) {
+    public void setTime(double time) {
         this.time = time;
     }
 }

@@ -24,7 +24,7 @@ public class GameCursorWrapper extends CursorWrapper {
     public GameInfo getGameInfo() {
         int boardSize = getInt(getColumnIndex(GameDbSchema.RecordTable.Cols.BOARDSIZE));
         String name = getString(getColumnIndex(GameDbSchema.RecordTable.Cols.NAME));
-        long time = getLong(getColumnIndex(GameDbSchema.RecordTable.Cols.TIME));
+        double time = getLong(getColumnIndex(GameDbSchema.RecordTable.Cols.TIME));
 
         GameInfo gameInfo = new GameInfo(boardSize, name, time);
         return gameInfo;

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TheKightsTour</string>
+    <string name="app_name">TheKnightsTour</string>
     <string name="title">The Knights Tour</string>
     <string name="play_game">Play Game</string>
     <string name="options">Options</string>

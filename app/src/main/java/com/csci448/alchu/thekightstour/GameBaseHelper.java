@@ -21,7 +21,7 @@ public class GameBaseHelper extends SQLiteOpenHelper {
             db.execSQL("create table " + GameDbSchema.RecordTable.NAME+ "(" +
                     GameDbSchema.RecordTable.Cols.BOARDSIZE + " INT PRIMARY KEY, "
                     + GameDbSchema.RecordTable.Cols.NAME + " TEXT, "
-                    + GameDbSchema.RecordTable.Cols.TIME + " LONG"
+                    + GameDbSchema.RecordTable.Cols.TIME + " DOUBLE"
                     + ")"
             );
 

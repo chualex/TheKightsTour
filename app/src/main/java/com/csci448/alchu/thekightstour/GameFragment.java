@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -11,12 +12,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -45,11 +55,16 @@ public class GameFragment extends Fragment {
     private static Timer mTimer;
     private static long mTimeStart;
     private static long mTimeCurrent;
-    private static long mFinalTime;
+    private static double mFinalTime;
     private TextView mTimeDisplay;
     private TextView mResultText;
     private TextView mWinLossDisplay;
     private SQLiteDatabase mDatabase;
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mDatabaseReference;
+    private double mBestTime;
+    private String mCloudName;
+    private boolean mWon;
     /**
      * Called when the class is created. sets up the arguments passed from the Welcome Activity.
      *
@@ -65,6 +80,23 @@ public class GameFragment extends Fragment {
         mGameButtons = new Button[mBoardSize][mBoardSize];
         mGameBoard = new squareState[mBoardSize][mBoardSize];
         mGameOver = false;
+
+        mFirebaseDatabase = FirebaseDatabase.getInstance("https://the-knights-tour.firebaseio.com/");
+        mDatabaseReference = mFirebaseDatabase.getReference();
+
+        DatabaseReference ref = mDatabaseReference.child(Integer.toString(mBoardSize));
+        DatabaseReference ref1 = ref.child("Time");
+        ref1.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mBestTime = Double.valueOf((String) dataSnapshot.getValue());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         if (savedInstanceState != null) {
 
@@ -106,6 +138,9 @@ public class GameFragment extends Fragment {
             }
         });
 
+        final EditText editText = (EditText) view.findViewById(R.id.global_name);
+        editText.setVisibility(View.INVISIBLE);
+
         mProceedFromGameButton = (Button) view.findViewById(R.id.proceed_button);
         mProceedFromGameButton.setVisibility(View.INVISIBLE);
         mProceedFromGameButton.setOnClickListener(new View.OnClickListener() {
@@ -115,6 +150,9 @@ public class GameFragment extends Fragment {
                 mGameLayout.setVisibility(View.INVISIBLE);
                 mPostgameLayout.setVisibility(View.VISIBLE);
                 mResultText.setVisibility(View.INVISIBLE);
+                if (mFinalTime < mBestTime && mWon) {
+                    editText.setVisibility(View.VISIBLE);
+                }
                 stopTimer();
             }
         });
@@ -123,9 +161,14 @@ public class GameFragment extends Fragment {
         mProceedFromPostGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (mFinalTime < mBestTime && mWon) {
+                    cloudDBRecord();
+                }
                 getActivity().finish();
             }
         });
+
+        mWon = false;
 
         // casts board size to float for layout weight
         float f = (float) mBoardSize;
@@ -199,15 +242,15 @@ public class GameFragment extends Fragment {
                                     // Somehow prompt for name - after cloud db is setup
                                     // Put this all into a function and query existing db for quicker time
                                     stopTimer();
-                                    ContentValues values = new ContentValues();
-                                    values.put(GameDbSchema.RecordTable.Cols.BOARDSIZE, mBoardSize);
-                                    values.put(GameDbSchema.RecordTable.Cols.NAME, "Bob Ross");
-                                    values.put(GameDbSchema.RecordTable.Cols.TIME, mFinalTime);
-                                    GameInfo gameInfo = new GameInfo(mBoardSize, "Bob Ross", mFinalTime);
-                                    updateGameInfo(gameInfo);
+                                    localDBRecord();
+                                    mWon = true;
+                                    //start sound
+                                    playWinSound();
                                 } else {
                                     Log.i(TAG, "Loser");
                                     mWinLossDisplay.setText("Sorry you lost!");
+                                    playLostSound();
+                                    mWon = false;
                                 }
                             }
                         }
@@ -233,9 +276,11 @@ public class GameFragment extends Fragment {
         return view;
     }
 
+
+
     public static void stopTimer() {
         mTimer.cancel();
-        mFinalTime = (mTimeCurrent - mTimeStart) / 1000;
+        mFinalTime = (mTimeCurrent - mTimeStart) / 1000.00;
     }
 
     private void updateUI() {
@@ -264,6 +309,21 @@ public class GameFragment extends Fragment {
                 }
             }
         }
+    }
+
+    private void localDBRecord() {
+        GameInfo gameInfo = new GameInfo(mBoardSize, "Bob Ross", mFinalTime);
+        updateGameInfo(gameInfo);
+    }
+
+    private void cloudDBRecord() {
+        mCloudName = ((EditText)getView().findViewById(R.id.global_name)).getText().toString();
+
+        DatabaseReference ref = mDatabaseReference.child(Integer.toString(mBoardSize));
+        Map<String, Object> map = new HashMap<>();
+        map.put("Name", mCloudName);
+        map.put("Time", String.format("%.2f", mFinalTime));
+        ref.updateChildren(map);
     }
 
     private void setBoard() {
@@ -302,11 +362,11 @@ public class GameFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     public void run() {
                         mTimeCurrent = System.currentTimeMillis();
-                        mTimeDisplay.setText(Long.toString((mTimeCurrent - mTimeStart) / 1000));
+                        mTimeDisplay.setText(String.format("%.2f", (mTimeCurrent - mTimeStart) / 1000.0));
                     }
                 });
             }
-        }, 1000, 1000);
+        }, 10, 10);
     }
 
     public static GameFragment newInstance(int boardSize) {
@@ -334,6 +394,18 @@ public class GameFragment extends Fragment {
         return contentValues;
     }
 
-    //TODO Sound - Cloud DB/Prettify
+    private void playWinSound() {
+        final MediaPlayer mp = MediaPlayer.create(getContext(), R.raw.win_sound);
+        mp.start();
+    }
+
+    private void playLostSound() {
+        final MediaPlayer mp = MediaPlayer.create(getContext(), R.raw.losing_sound);
+        mp.start();
+    }
+    //TODO Clean options menu text
+    //TODO post game layout could be nicer
+    //TODO Test different board sizes - 7 and 9 seem to be fine! don't know how to complete 7 though...
+    //TODO find out why local leaderboard times are being truncated
 }
 
