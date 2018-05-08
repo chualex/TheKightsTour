@@ -67,6 +67,7 @@ public class GameFragment extends Fragment {
     private String mCloudName;
     private boolean mWon;
     ArrayList<GameInfo> records;
+    private static MediaPlayer mGameSound;
     /**
      * Called when the class is created. sets up the arguments passed from the Welcome Activity.
      *
@@ -114,6 +115,9 @@ public class GameFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_game, container, false);
+
+        mGameSound = MediaPlayer.create(getContext(), R.raw.game_sound);
+        mGameSound.start();
 
         mGameLayout = (FrameLayout) view.findViewById(R.id.game_layout);
         mGameLayout.setVisibility(View.VISIBLE);
@@ -302,6 +306,7 @@ public class GameFragment extends Fragment {
     public static void stopTimer() {
         mTimer.cancel();
         mFinalTime = (mTimeCurrent - mTimeStart) / 1000.00;
+        mGameSound.stop();
     }
 
     private void updateUI() {
