@@ -8,7 +8,9 @@ import android.support.v4.app.Fragment;
 import java.util.List;
 
 /**
- * Created by Alex on 3/1/18.
+ * OptionsActivity
+ *
+ * launches OptionsFragment
  */
 
 public class OptionsActivity extends SingleFragmentActivity {

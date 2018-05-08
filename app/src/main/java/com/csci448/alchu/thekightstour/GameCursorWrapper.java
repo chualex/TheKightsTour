@@ -7,7 +7,9 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * Created by Alex on 3/19/18.
+ * GameCursorWrapper Class
+ *
+ * gets the GameInfor from the local database
  */
 
 public class GameCursorWrapper extends CursorWrapper {

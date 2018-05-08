@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 
 /**
- * Options Fragment Class
+ * OptionsFragment Class
  *
  * Handles all inputs from the options page. Sends options set by user back to the Welcome Fragment
  */

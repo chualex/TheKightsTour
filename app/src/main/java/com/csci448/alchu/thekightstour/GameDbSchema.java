@@ -1,7 +1,7 @@
 package com.csci448.alchu.thekightstour;
 
 /**
- * Created by Alex on 3/19/18.
+ * Database table to store the fastest times
  */
 
 public class GameDbSchema {

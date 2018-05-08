@@ -5,7 +5,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
- * Created by Alex on 3/19/18.
+ * GameBaseHelper Class
+ *
+ * Sets up local database - stores the best times for each boardsize for the user.
  */
 
 public class GameBaseHelper extends SQLiteOpenHelper {
@@ -16,6 +18,11 @@ public class GameBaseHelper extends SQLiteOpenHelper {
     }
 
 
+    /**
+     * creates the database
+     *
+     * @param db
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
             db.execSQL("create table " + GameDbSchema.RecordTable.NAME+ "(" +

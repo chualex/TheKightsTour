@@ -1,7 +1,9 @@
 package com.csci448.alchu.thekightstour;
 
 /**
- * Created by Alex on 4/19/18.
+ * Point Class
+ *
+ * Stores current point on the game board
  */
 
 public class Point {

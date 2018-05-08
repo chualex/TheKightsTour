@@ -1,7 +1,9 @@
 package com.csci448.alchu.thekightstour;
 
 /**
- * Created by Alex on 5/5/18.
+ * GameInfo Class
+ *
+ * stores information for the fastest times
  */
 
 public class GameInfo {

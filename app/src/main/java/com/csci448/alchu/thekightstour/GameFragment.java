@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +29,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by Alex on 3/15/18.
@@ -148,7 +146,7 @@ public class GameFragment extends Fragment {
             wrapper.close();
         }
 
-        // finds the best time for the current board size
+        // finds the best local time for the current board size
         for (GameInfo record : records) {
             if (record.getBoardSize() == mBoardSize) {
                 mLocalBestTime = record.getTime();
@@ -171,23 +169,32 @@ public class GameFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_game, container, false);
 
+        // sets up game sound
         mGameSound = MediaPlayer.create(getContext(), R.raw.game_sound);
+        //starts the game sound
         mGameSound.start();
 
+        //sets up game layout
         mGameLayout = (FrameLayout) view.findViewById(R.id.game_layout);
         mGameLayout.setVisibility(View.VISIBLE);
 
+        // sets up postgame layout
         mPostgameLayout = (LinearLayout) view.findViewById(R.id.postgame_layout);
         mPostgameLayout.setVisibility(View.INVISIBLE);
 
+        // Sets up the win loss display
         mWinLossDisplay = (TextView) view.findViewById(R.id.win_loss_display);
 
+        // Sets up the game board view
         mGameBoardLayout = (LinearLayout) view.findViewById(R.id.game_board);
 
+        // sets up the time display
         mTimeDisplay = (TextView) view.findViewById(R.id.time_display);
 
+        // sets up the result display
         mResultText = (TextView) view.findViewById(R.id.result_display);
 
+        // sets up the quit button - sends user back to welcome screen
         mQuitButton = (Button) view.findViewById(R.id.game_quit_button);
         mQuitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -197,19 +204,23 @@ public class GameFragment extends Fragment {
             }
         });
 
+        // sets up the prompt for user name for global database
         final LinearLayout cloudDbPrompt = (LinearLayout) view.findViewById(R.id.cloud_db_prompt);
 
+        // sets up proceed from game button - sends user to welcome screen or prompts for user name
         mProceedFromGameButton = (Button) view.findViewById(R.id.proceed_button);
         mProceedFromGameButton.setVisibility(View.INVISIBLE);
         mProceedFromGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // prompts user name - fastest global time
                 if (mWon && mFinalTime < mGlobalBestTime) {
                     mGameLayout.setVisibility(View.INVISIBLE);
                     mPostgameLayout.setVisibility(View.VISIBLE);
                     mResultText.setVisibility(View.INVISIBLE);
                     cloudDbPrompt.setVisibility(View.VISIBLE);
                 }
+                // sends back to welcome screen
                 else {
                     getActivity().finish();
                 }
@@ -218,11 +229,13 @@ public class GameFragment extends Fragment {
             }
         });
 
+        // sets up proceed from post game layout
         mProceedFromPostGameButton = (Button) view.findViewById(R.id.proceed_from_postgame);
         mProceedFromPostGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mFinalTime < mGlobalBestTime && mWon) {
+                    // stores records in cloud db
                     cloudDBRecord();
                 }
                 getActivity().finish();
@@ -284,28 +297,41 @@ public class GameFragment extends Fragment {
                             //reset the board
                             setBoard();
 
+                            // updates the layout
                             updateUI();
 
+                            // check for game over
                             if (mGameOver) {
 
+                                // shows result text
                                 mResultText.setVisibility(View.VISIBLE);
+                                // shows proceed from game button
                                 mProceedFromGameButton.setVisibility(View.VISIBLE);
+
+                                // checks if won
                                 if (mVisitedSquares.size() == mBoardSize * mBoardSize - 1) {
+
+                                    //sets text
                                     mResultText.setText("You Won!");
                                     mWinLossDisplay.setText("Congrats You Won!");
-                                    // ADDITIONS
-                                    // Somehow prompt for name - after cloud db is setup
-                                    // Put this all into a function and query existing db for quicker time
+
+                                    // stops timer
                                     stopTimer();
 
+                                    // stores lime if less than best time
                                     if (mFinalTime < mLocalBestTime) {
                                         localDBRecord();
                                     }
 
+                                    //sets win to true
                                     mWon = true;
+
                                     //start sound
                                     playWinSound();
-                                } else {
+                                }
+                                // loss
+                                else {
+                                    // sets text for loss
                                     mWinLossDisplay.setText("Sorry you lost!");
                                     playLostSound();
                                     mWon = false;
@@ -325,9 +351,12 @@ public class GameFragment extends Fragment {
             mGameBoardLayout.addView(layout);
         }
 
+        // sets the board
         setBoard();
+        // updates the layout
         updateUI();
 
+        // gets start time
         mTimeStart = System.currentTimeMillis();
         startTimer();
 
@@ -335,13 +364,19 @@ public class GameFragment extends Fragment {
     }
 
 
-
+    /**
+     * stops timer and gets the final time
+     */
     public static void stopTimer() {
         mTimer.cancel();
         mFinalTime = (mTimeCurrent - mTimeStart) / 1000.00;
         mGameSound.stop();
     }
 
+    /**
+     * holds updating layout logic. Depending on the state of the square it changes the color
+     * accordingly
+     */
     private void updateUI() {
         for (int i = 0; i < mGameBoard.length; i++) {
             for (int j = 0; j < mGameBoard[i].length; j++) {
@@ -370,11 +405,17 @@ public class GameFragment extends Fragment {
         }
     }
 
+    /**
+     * Updates the local database with new fast time
+     */
     private void localDBRecord() {
         GameInfo gameInfo = new GameInfo(mBoardSize, "Bob Ross", mFinalTime);
         updateGameInfo(gameInfo);
     }
 
+    /**
+     * updates the cloud database with the new fast time
+     */
     private void cloudDBRecord() {
         mCloudName = ((EditText)getView().findViewById(R.id.global_name)).getText().toString();
 
@@ -385,6 +426,9 @@ public class GameFragment extends Fragment {
         ref.updateChildren(map);
     }
 
+    /**
+     * sets up the board in the initial state
+     */
     private void setBoard() {
         //Set everything to unoccupied
         clearBoard();
@@ -402,6 +446,9 @@ public class GameFragment extends Fragment {
         }
     }
 
+    /**
+     * clears the board - sets all squares to UNOCCUPIED
+     */
     private void clearBoard() {
         for (int i = 0; i < mGameButtons.length; i++) {
             for (int j = 0; j < mGameButtons[i].length; j++) {
@@ -410,8 +457,12 @@ public class GameFragment extends Fragment {
         }
     }
 
+    /**
+     * Starts the timer and updates the display
+     */
     private void startTimer() {
         mTimer = new Timer();
+        // schedules timer to update at 10ms
         mTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -428,6 +479,11 @@ public class GameFragment extends Fragment {
         }, 10, 10);
     }
 
+    /**
+     * Creates GameFragment
+     * @param boardSize size of board
+     * @return GameFragment with board size as an argument
+     */
     public static GameFragment newInstance(int boardSize) {
         Bundle args = new Bundle();
         args.putInt(ARGUMENT_BOARD_SIZE, boardSize);
@@ -437,6 +493,10 @@ public class GameFragment extends Fragment {
         return frag;
     }
 
+    /**
+     * updates the game info in the local database
+     * @param gameInfo
+     */
     public void updateGameInfo(GameInfo gameInfo) {
         int boardSize = gameInfo.getBoardSize();
         ContentValues values = getContentValues(gameInfo);
@@ -445,6 +505,11 @@ public class GameFragment extends Fragment {
                 new String[] { Integer.toString(boardSize) });
     }
 
+    /**
+     * gets content values for game info
+     * @param gameInfo
+     * @return
+     */
     private ContentValues getContentValues(GameInfo gameInfo) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(GameDbSchema.RecordTable.Cols.BOARDSIZE, gameInfo.boardSize);
@@ -453,16 +518,28 @@ public class GameFragment extends Fragment {
         return contentValues;
     }
 
+    /**
+     * plays the win sound
+     */
     private void playWinSound() {
         final MediaPlayer mp = MediaPlayer.create(getContext(), R.raw.win_sound);
         mp.start();
     }
 
+    /**
+     * plays the loss sound
+     */
     private void playLostSound() {
         final MediaPlayer mp = MediaPlayer.create(getContext(), R.raw.losing_sound);
         mp.start();
     }
 
+    /**
+     * queries local database
+     * @param whereClause
+     * @param whereArgs
+     * @return
+     */
     private GameCursorWrapper queryGameInfo(String whereClause, String[] whereArgs) {
         Cursor cursor = mDatabase.query(
                 GameDbSchema.RecordTable.NAME,
@@ -475,9 +552,6 @@ public class GameFragment extends Fragment {
         );
         return new GameCursorWrapper(cursor);
     }
-    //TODO Clean options menu text
-    //TODO post game layout could be nicer
-    //TODO Test different board sizes - 7 and 9 seem to be fine! don't know how to complete 7 though...
-    //TODO find out why local leaderboard times are being truncated
+
 }
 

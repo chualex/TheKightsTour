@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created bmY AlemX on 4/19/18.
+ * Knight Class
+ *
+ * Holds knight piece logic - Current point and possible moves
  */
 
 public class Knight {
@@ -33,6 +35,11 @@ public class Knight {
         mY = y;
     }
 
+    /**
+     * based on current location gets the possible moves the knight can make
+     * @param board current board state
+     * @return list of possible points
+     */
     public List<Point> getAvaialbeSquares(squareState[][] board) {
         List<Point> nemXtMoves = new ArrayList<>();
         int size = board.length;

@@ -25,21 +25,27 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by Alex on 3/15/18.
+ * LeaderboardFragment
+ *
+ * Stores logic for leaderboards - Local and Cloud databases are loaded into a view
  */
 
 public class LeaderboardFragment extends Fragment {
-
+    // button to display global leaderboard
     private Button mGlobalButton;
+    // button to display local leaderboard
     private Button mLocalButton;
-    private TextView mGlobalTextView;
-    private TextView mLocalTextView;
+    // local database
     private SQLiteDatabase mDatabase;
-    private List<GameInfo> records;
+    // cloud database
     private FirebaseDatabase mFirebaseDatabase;
+    // reference to cloud database
     private DatabaseReference mDatabaseReference;
+    // layout for local times
     private LinearLayout mLocalLayout;
+    // layout for global times
     private LinearLayout mGlobalLayout;
+
     /**
      * Called when the class is created. sets up the arguments passed from the Welcome Activity.
      *
@@ -69,14 +75,9 @@ public class LeaderboardFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_leaderboard, container, false);
 
-        mGlobalTextView = (TextView) view.findViewById(R.id.global_leaderboard);
-        mGlobalTextView.setVisibility(View.INVISIBLE);
 
         mGlobalLayout = (LinearLayout) view.findViewById(R.id.global);
         mGlobalLayout.setVisibility(View.INVISIBLE);
-
-        mLocalTextView = (TextView) view.findViewById(R.id.local_leaderboard);
-        mLocalTextView.setVisibility(View.INVISIBLE);
 
         mLocalLayout = (LinearLayout) view.findViewById(R.id.local);
         mLocalLayout.setVisibility(View.VISIBLE);
@@ -129,23 +130,9 @@ public class LeaderboardFragment extends Fragment {
             }
         });
 
-//        DatabaseReference ref = mDatabaseReference.child("7");
-//        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                Log.d("TAG1", dataSnapshot.getValue().toString());
-//                Map<String, Object> map = (Map) dataSnapshot.getValue();
-//                Log.d("TAG2", map.get("Name").toString());
-//                Log.d("TAG2", map.get("Time").toString());
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
+        List<GameInfo> records = new ArrayList<>();
 
-        records = new ArrayList<>();
+
 
         GameCursorWrapper wrapper = queryGameInfo(null, null);
         try {

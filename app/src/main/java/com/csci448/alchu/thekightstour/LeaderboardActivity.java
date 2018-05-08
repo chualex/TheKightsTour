@@ -6,7 +6,9 @@ import android.support.annotation.LayoutRes;
 import android.support.v4.app.Fragment;
 
 /**
- * Created by Alex on 3/1/18.
+ * Leaderboard Activity
+ *
+ * launches the LeaderboardFragment
  */
 
 public class LeaderboardActivity extends SingleFragmentActivity {
