@@ -37,36 +37,61 @@ import static android.content.ContentValues.TAG;
  */
 
 public class GameFragment extends Fragment {
+    // Quit Button
     private Button mQuitButton;
+    // Proceed from game button
     private Button mProceedFromGameButton;
+    // FrameLayout for game
     private FrameLayout mGameLayout;
+    // Post game layout
     private LinearLayout mPostgameLayout;
+    // proceed from post game button
     private Button mProceedFromPostGameButton;
     // array to hold game buttons
     private Button[][] mGameButtons;
     // array to hold state of game board
     private squareState[][] mGameBoard;
+    // Game board layout
     private LinearLayout mGameBoardLayout;
+    // Board size
     private int mBoardSize;
+    // Key to get board size
     private static final String ARGUMENT_BOARD_SIZE = "com.gameactivity.boardsize";
+    // knight / game piece
     private Knight mKnight;
+    // List of visited squares
     private List<Point> mVisitedSquares;
+    // boolean for whether the game is over
     private boolean mGameOver;
+    // timer
     private static Timer mTimer;
+    // start time - time when timer is started
     private static long mTimeStart;
+    // Current time - used for view
     private static long mTimeCurrent;
+    // final time - stopped at the end of the game
     private static double mFinalTime;
+    // text view for time
     private TextView mTimeDisplay;
+    // Win loss text at bottom of screen
     private TextView mResultText;
+    // win loss text on post game layout
     private TextView mWinLossDisplay;
+    // local database
     private SQLiteDatabase mDatabase;
+    // global database
     private FirebaseDatabase mFirebaseDatabase;
+    // reference to global database
     private DatabaseReference mDatabaseReference;
+    // best global time for board size
     private double mGlobalBestTime;
+    // best local time for board size
     private double mLocalBestTime;
+    // name for global database
     private String mCloudName;
+    // boolean for if user won
     private boolean mWon;
-    ArrayList<GameInfo> records;
+    // sound played during the game
     private static MediaPlayer mGameSound;
     /**
      * Called when the class is created. sets up the arguments passed from the Welcome Activity.
@@ -77,6 +102,8 @@ public class GameFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // initialize variables
         mBoardSize = getArguments().getInt(ARGUMENT_BOARD_SIZE,0);
         mKnight = new Knight();
         mVisitedSquares = new ArrayList<>();
@@ -84,9 +111,11 @@ public class GameFragment extends Fragment {
         mGameBoard = new squareState[mBoardSize][mBoardSize];
         mGameOver = false;
 
+        // initialize the global database
         mFirebaseDatabase = FirebaseDatabase.getInstance("https://the-knights-tour.firebaseio.com/");
         mDatabaseReference = mFirebaseDatabase.getReference();
 
+        // get the best global time
         DatabaseReference ref = mDatabaseReference.child(Integer.toString(mBoardSize));
         DatabaseReference ref1 = ref.child("Time");
         ref1.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -100,6 +129,32 @@ public class GameFragment extends Fragment {
 
             }
         });
+
+        // sets up local database
+        mDatabase = new GameBaseHelper(getContext().getApplicationContext())
+                .getWritableDatabase();
+
+        // array list for query
+        ArrayList<GameInfo> records = new ArrayList<>();
+        // gets query from database
+        GameCursorWrapper wrapper = queryGameInfo(null, null);
+        try {
+            wrapper.moveToFirst();
+            while (!wrapper.isAfterLast()) {
+                records.add(wrapper.getGameInfo());
+                wrapper.moveToNext();
+            }
+        } finally {
+            wrapper.close();
+        }
+
+        // finds the best time for the current board size
+        for (GameInfo record : records) {
+            if (record.getBoardSize() == mBoardSize) {
+                mLocalBestTime = record.getTime();
+            }
+        }
+
     }
 
 
@@ -176,36 +231,14 @@ public class GameFragment extends Fragment {
 
         mWon = false;
 
-        records = new ArrayList<>();
 
         // casts board size to float for layout weight
         float f = (float) mBoardSize;
 
-        mDatabase = new GameBaseHelper(getContext().getApplicationContext())
-                .getWritableDatabase();
 
         // sets layout weight based on board size
         mGameBoardLayout.setWeightSum(f);
 
-        GameCursorWrapper wrapper = queryGameInfo(null, null);
-        try {
-            wrapper.moveToFirst();
-            while (!wrapper.isAfterLast()) {
-                records.add(wrapper.getGameInfo());
-                wrapper.moveToNext();
-            }
-        } finally {
-            wrapper.close();
-        }
-
-        for (GameInfo record : records) {
-            if (record.getBoardSize() == mBoardSize) {
-                mLocalBestTime = record.getTime();
-            }
-        }
-        if (savedInstanceState != null) {
-
-        }
 
         // loop to create NXN size board of buttons
         // the nested loop below iterates through the 2D array of buttons
