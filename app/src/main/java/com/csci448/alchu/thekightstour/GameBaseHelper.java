@@ -29,12 +29,12 @@ public class GameBaseHelper extends SQLiteOpenHelper {
 
             db.execSQL("INSERT INTO " + GameDbSchema.RecordTable.NAME + " (boardsize, name, time) " +
             "VALUES " +
-            "(5, '', 999), " +
-            "(6, '', 999), " +
-            "(7, '', 999), " +
-            "(8, '', 999), " +
-            "(9, '', 999), " +
-            "(10, '', 999)"
+            "(5, '', 999.9), " +
+            "(6, '', 999.9), " +
+            "(7, '', 999.9), " +
+            "(8, '', 999.9), " +
+            "(9, '', 999.9), " +
+            "(10, '', 999.9)"
             );
     }
 

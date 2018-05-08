@@ -113,11 +113,11 @@ public class LeaderboardFragment extends Fragment {
                 for (int i = 5; i < 11; i++) {
                     Map<String, Object> map = list.get(i);
 
-                    int myTimeId = getResources().getIdentifier("time"+i, "id", getActivity().getPackageName());
+                    int myTimeId = getActivity().getResources().getIdentifier("time"+i, "id", getActivity().getPackageName());
                     TextView timeView = getView().findViewById(myTimeId);
                     timeView.setText(map.get("Time").toString());
 
-                    int myNameId = getResources().getIdentifier("name"+i, "id", getActivity().getPackageName());
+                    int myNameId = getActivity().getResources().getIdentifier("name"+i, "id", getActivity().getPackageName());
                     TextView nameView = getView().findViewById(myNameId);
                     nameView.setText(map.get("Name").toString());
                 }

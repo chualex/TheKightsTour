@@ -62,9 +62,11 @@ public class GameFragment extends Fragment {
     private SQLiteDatabase mDatabase;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mDatabaseReference;
-    private double mBestTime;
+    private double mGlobalBestTime;
+    private double mLocalBestTime;
     private String mCloudName;
     private boolean mWon;
+    ArrayList<GameInfo> records;
     /**
      * Called when the class is created. sets up the arguments passed from the Welcome Activity.
      *
@@ -89,7 +91,7 @@ public class GameFragment extends Fragment {
         ref1.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                mBestTime = Double.valueOf((String) dataSnapshot.getValue());
+                mGlobalBestTime = Double.valueOf((String) dataSnapshot.getValue());
             }
 
             @Override
@@ -97,11 +99,9 @@ public class GameFragment extends Fragment {
 
             }
         });
-
-        if (savedInstanceState != null) {
-
-        }
     }
+
+
 
     /**
      * creates the View. Sets up the buttons and layout. Sets up button listeners and stores changed
@@ -138,22 +138,24 @@ public class GameFragment extends Fragment {
             }
         });
 
-        final EditText editText = (EditText) view.findViewById(R.id.global_name);
-        editText.setVisibility(View.INVISIBLE);
+        final LinearLayout cloudDbPrompt = (LinearLayout) view.findViewById(R.id.cloud_db_prompt);
 
         mProceedFromGameButton = (Button) view.findViewById(R.id.proceed_button);
         mProceedFromGameButton.setVisibility(View.INVISIBLE);
         mProceedFromGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mGameOver = true;
-                mGameLayout.setVisibility(View.INVISIBLE);
-                mPostgameLayout.setVisibility(View.VISIBLE);
-                mResultText.setVisibility(View.INVISIBLE);
-                if (mFinalTime < mBestTime && mWon) {
-                    editText.setVisibility(View.VISIBLE);
+                if (mWon && mFinalTime < mGlobalBestTime) {
+                    mGameLayout.setVisibility(View.INVISIBLE);
+                    mPostgameLayout.setVisibility(View.VISIBLE);
+                    mResultText.setVisibility(View.INVISIBLE);
+                    cloudDbPrompt.setVisibility(View.VISIBLE);
                 }
-                stopTimer();
+                else {
+                    getActivity().finish();
+                }
+                mGameOver = true;
+
             }
         });
 
@@ -161,7 +163,7 @@ public class GameFragment extends Fragment {
         mProceedFromPostGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mFinalTime < mBestTime && mWon) {
+                if (mFinalTime < mGlobalBestTime && mWon) {
                     cloudDBRecord();
                 }
                 getActivity().finish();
@@ -169,6 +171,8 @@ public class GameFragment extends Fragment {
         });
 
         mWon = false;
+
+        records = new ArrayList<>();
 
         // casts board size to float for layout weight
         float f = (float) mBoardSize;
@@ -178,6 +182,26 @@ public class GameFragment extends Fragment {
 
         // sets layout weight based on board size
         mGameBoardLayout.setWeightSum(f);
+
+        GameCursorWrapper wrapper = queryGameInfo(null, null);
+        try {
+            wrapper.moveToFirst();
+            while (!wrapper.isAfterLast()) {
+                records.add(wrapper.getGameInfo());
+                wrapper.moveToNext();
+            }
+        } finally {
+            wrapper.close();
+        }
+
+        for (GameInfo record : records) {
+            if (record.getBoardSize() == mBoardSize) {
+                mLocalBestTime = record.getTime();
+            }
+        }
+        if (savedInstanceState != null) {
+
+        }
 
         // loop to create NXN size board of buttons
         // the nested loop below iterates through the 2D array of buttons
@@ -226,28 +250,25 @@ public class GameFragment extends Fragment {
                             updateUI();
 
                             if (mGameOver) {
-                                for (int i = 0; i < mGameBoard.length; i++) {
-                                    for (int j = 0; j < mGameBoard[i].length; j++) {
-                                        mGameButtons[i][j].setBackgroundColor(Color.BLUE);
-                                    }
-                                }
 
                                 mResultText.setVisibility(View.VISIBLE);
                                 mProceedFromGameButton.setVisibility(View.VISIBLE);
                                 if (mVisitedSquares.size() == mBoardSize * mBoardSize - 1) {
-                                    Log.i(TAG, "Winner");
-                                    mResultText.setText("Winner!");
+                                    mResultText.setText("You Won!");
                                     mWinLossDisplay.setText("Congrats You Won!");
                                     // ADDITIONS
                                     // Somehow prompt for name - after cloud db is setup
                                     // Put this all into a function and query existing db for quicker time
                                     stopTimer();
-                                    localDBRecord();
+
+                                    if (mFinalTime < mLocalBestTime) {
+                                        localDBRecord();
+                                    }
+
                                     mWon = true;
                                     //start sound
                                     playWinSound();
                                 } else {
-                                    Log.i(TAG, "Loser");
                                     mWinLossDisplay.setText("Sorry you lost!");
                                     playLostSound();
                                     mWon = false;
@@ -402,6 +423,19 @@ public class GameFragment extends Fragment {
     private void playLostSound() {
         final MediaPlayer mp = MediaPlayer.create(getContext(), R.raw.losing_sound);
         mp.start();
+    }
+
+    private GameCursorWrapper queryGameInfo(String whereClause, String[] whereArgs) {
+        Cursor cursor = mDatabase.query(
+                GameDbSchema.RecordTable.NAME,
+                null, // columns - null selects all columns
+                whereClause,
+                whereArgs,
+                null, // groupBy
+                null, // having
+                null  // orderBy
+        );
+        return new GameCursorWrapper(cursor);
     }
     //TODO Clean options menu text
     //TODO post game layout could be nicer

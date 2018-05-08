@@ -4,6 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/result_display"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:visibility="invisible"
+        android:textSize="30dp"
+        android:layout_gravity="bottom|center"
+        android:textColor="@color/colorAccent"
+        android:text="You Lost!"
+        android:elevation="10dp"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -25,16 +36,7 @@
             />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/result_display"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:visibility="invisible"
-        android:textSize="30dp"
-        android:layout_gravity="bottom|center"
-        android:textColor="@color/colorAccent"
-        android:text="Loser"/>
+
 
     <FrameLayout
         android:id="@+id/game_layout"
@@ -83,12 +85,30 @@
             android:layout_gravity="center_horizontal"
             android:padding="54dp"/>
 
-        <EditText
-            android:id="@+id/global_name"
-            android:visibility="invisible"
+        <LinearLayout
+            android:id="@+id/cloud_db_prompt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter a name:"/>
+            android:orientation="vertical"
+            android:visibility="invisible">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Congrats you beat the fastest time!"
+                android:layout_gravity="center"
+                android:textSize="23dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enter your name for the Leaderboard:"
+                android:layout_gravity="center"
+                android:textSize="23dp"/>
+            <EditText
+                android:id="@+id/global_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter a name:"/>
+        </LinearLayout>
 
         <Button
             android:id="@+id/proceed_from_postgame"
@@ -98,12 +118,5 @@
             android:layout_gravity="center_horizontal"/>
 
     </LinearLayout>
-
-
-
-
-
-
-
 
 </FrameLayout>
